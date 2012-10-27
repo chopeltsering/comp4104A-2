@@ -25,7 +25,7 @@ public class Connector {
 		 
 	}
 	
-	public void sendMessage(String message){
+	public void sendMessage(String message) throws IOException{
 		
 		
 		/*POST <name> HTTP 1.1
