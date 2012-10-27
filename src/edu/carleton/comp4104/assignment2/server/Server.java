@@ -1,0 +1,85 @@
+package edu.carleton.comp4104.assignment2.server;
+
+//import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+//import java.io.InputStream;
+//import java.io.InputStreamReader;
+////import java.io.OutputStream;
+////import java.net.ServerSocket;
+//import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+
+
+public class Server {
+	Reactor reactor;
+	Acceptor acceptor;
+	Vault vault;
+	int port;
+	String fileName;	
+	String path;
+	String [] keysForTestObject;
+	ArrayList<String> list;   // to store keys for object.... just so i can iterate over the list
+	
+	public Server(){
+		port = 69;
+		vault = new Vault();
+		reactor = new Reactor();
+		acceptor = new Acceptor(port);
+		fileName = "loadClassName.txt";  // file where i have save object name with 
+		path = new java.io.File("").getAbsolutePath()+ File.separator + fileName;
+		String [] keysForTestObject = {"Register", "Deregister", "Message.1", "Message.2"};
+		Collections.addAll(list, keysForTestObject);
+	}
+	
+	public static void main(String[] args) {
+		VaultServer server = new VaultServer();
+		server.start();
+	
+	}
+	
+	public void start(){
+		registerEventHandler();
+		acceptor.setReactor(reactor);
+		
+		try {
+//			acceptor.accept();
+//			reactor.dispatch(sock);
+//			InputStreamReader IR = new InputStreamReader(sock.getInputStream());
+//			BufferedReader BR = new BufferedReader(IR);
+			//header.java, body.java, message.java, JSONMessage.java, Connector.java, Acceptor.java
+		
+			while(true){
+				//String message = BR.readLine();
+				//System.out.println(message);
+				boolean newConnection = acceptor.accept();
+				System.out.println("new connection has been made: " + newConnection);
+			}
+			
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+	}
+	
+	public void registerEventHandler(){
+		/*r.registerHandler("GET", new EventHandler(){
+			public void HandleEvent(Event e){
+				doGet(e.getRequest(), e.getResponse());  // how is doGet or doPost are called from eventHandler class?
+			}
+		});
+		
+		r.registerHandler("POST", new EventHandler(){
+			public void HandleEvent(Event e){
+				doPost(e.getRequest(), e.getResponse());
+			}
+		});*/
+		
+		for(String key: list){
+			reactor.registerHandler(path, key);
+		}
+		
+	}
+
+}
