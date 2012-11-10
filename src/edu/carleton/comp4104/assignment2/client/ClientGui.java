@@ -5,6 +5,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
@@ -15,15 +16,17 @@ public class ClientGui extends JPanel{
 	Client model;
 	JList<String> aListOfClients;
 	JLabel userName;
-	JTextField conversationFromOtherclients;
+	JTextArea conversationFromOtherclients;
 	JTextField whereUserTypes;
 	JButton SendButton;
+	String clientName;
 	
-	public ClientGui(Client client){
+	public ClientGui(Client model){
 		setLayout(null);
-		model = client;
+		this.model = model;
+		this.model.setGuiForUpdate(this);
 		
-		userName = new JLabel(model.clientName); 
+		userName = new JLabel(model.userName); 
 		userName.setLocation(10, 10);
 		userName.setSize(100, 10);
 		add(userName);
@@ -36,8 +39,7 @@ public class ClientGui extends JPanel{
 		scrollPaneForListOfclient.setSize(300,100);
 		add(scrollPaneForListOfclient);
 		
-		conversationFromOtherclients = new JTextField();
-		conversationFromOtherclients.setEditable(false);
+		conversationFromOtherclients = new JTextArea();
 		JScrollPane scrollPaneForConversation = new JScrollPane(conversationFromOtherclients,
 		ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 		ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -46,11 +48,14 @@ public class ClientGui extends JPanel{
 		add(scrollPaneForConversation);
 		
 		whereUserTypes = new JTextField();
+		//whereUserTypes.setEnabled(false);
 		whereUserTypes.setLocation(10,300);
 		whereUserTypes.setSize(300,25);
 		add(whereUserTypes);
 		
 		SendButton = new JButton("Send");
+		//SendButton.setEnabled(false); 			//sendbutton is disable at the beginning
+		SendButton.setEnabled(true);
 		SendButton.setLocation(350, 300);
 		SendButton.setSize(100,25);
 		add(SendButton);
@@ -59,9 +64,16 @@ public class ClientGui extends JPanel{
 	}
 	
 	public void update(){
-		aListOfClients.setListData((String [])model.otherClients.toArray()); // updates the list in Jlist
-		SendButton.setEnabled((aListOfClients.getSelectedIndex()) >= 0 && (!whereUserTypes.getText().isEmpty())); // enable send button as focused when theres text in textfield and when one of the user is selected
-		 
+		System.out.println("update has been called");
+		String[] exactList = new String[model.otherClients.size()];
+		for(int i = 0; i< model.otherClients.size(); i++){
+			if(!model.otherClients.get(i).equals(model.userName)){
+				exactList[i] = model.otherClients.get(i);
+			}
+			System.out.println(exactList[i]);
+		}
+		
+		aListOfClients.setListData(exactList); // updates the list in Jlist
 	}
 	
 	public JList<String> getList(){

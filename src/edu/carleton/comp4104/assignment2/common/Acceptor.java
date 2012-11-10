@@ -1,48 +1,45 @@
 package edu.carleton.comp4104.assignment2.common;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-@SuppressWarnings("unused")
+import com.google.gson.Gson;
+
 public class Acceptor {
 	
-	
-	ArrayList<Socket> socketList;
-	Socket sock;
-	ServerSocket listener;
 	Reactor reactor;
+	ServerSocket listener;
+	Socket sock;
+	int poolSize = 10;
+	Gson gson;
 	
-	public Acceptor(int port){
-		socketList = new ArrayList<Socket>();
-		sock = null;
-		try {
-			listener = new ServerSocket(port);  // server is listening at port 69
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private static Acceptor instance = null;  // for singleton pattern
+	
+	public Acceptor(){
+	}
+	public static Acceptor getInstance() {
+		if(instance == null) {
+	         instance = new Acceptor();
+	    }
+	    return instance;
 	}
 	
-	public boolean accept() throws IOException{
-		if(sock == null){
-			sock = listener.accept();
-		}
-		
-		if(sock.isConnected()){
-			socketList.add(sock);
-			new Thread(new Worker(sock, reactor)).start(); // creating new connection thread
-			sock = null;  // almost same as closing the socket but connection is maintained since reference to socket has been passed on. 
-			return true;
-		}else
-			return false;
-	}
-	
-	public void setReactor(Reactor reactor){
+	public void init(Reactor reactor, int port) throws IOException{
 		this.reactor = reactor;
+		listener = new ServerSocket(port);
+		gson = new Gson();
+	} 
+	
+	public void accept() throws IOException {
+		System.out.println("waiting for connection");
+		sock = listener.accept();
+
+		Thread connection = new Thread(new Connection(reactor, sock));
+	
+		ExecutorService pool = Executors.newFixedThreadPool(poolSize);
+		pool.execute(connection);
 	}
 }
-
-
- 

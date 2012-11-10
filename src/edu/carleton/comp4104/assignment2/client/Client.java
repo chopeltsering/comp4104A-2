@@ -1,97 +1,73 @@
 package edu.carleton.comp4104.assignment2.client;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Set;
 
-import edu.carleton.comp4104.assignment2.common.Acceptor;
 import edu.carleton.comp4104.assignment2.common.Connector;
-import edu.carleton.comp4104.assignment2.common.Marshaller;
-import edu.carleton.comp4104.assignment2.common.Reactor;
+import edu.carleton.comp4104.assignment2.common.JSONMessage;
 
-public class Client {
-	Reactor reactor;
-	Acceptor acceptor;
+public class Client implements Runnable{
 	Connector connector;
+	JSONMessage message;
 	String host;
 	int port;
-	String clientName;
+	String userName;
 	ArrayList<String> otherClients;
+	ArrayList<String> conversation;
 	Thread listener;
-	String cmd1 ;
-	String cmd2;
-	String cmd3;
-	String cmd4;
+	String cmd1, cmd2;
+	ClientGui gui;
 
-	
-	public Client() throws IOException{
-		//reactor = new Reactor();
-		//connector = new Connector();
-		//acceptor = new Acceptor(5000); // will accept connection at port 5000 < to be used in peer to peer connection>
-		host = "127.0.0.1";
-		port = 69;                   // server is listening at port 69 
+	public Client(String userName, String localHost, int port) throws IOException{
+		connector = new Connector();
+		this.userName = userName;
+		host = localHost;
+		this.port = port;
 		otherClients = new ArrayList<String>();
-		
 		cmd1 = "Login";
-		cmd2 = "Conversation";
-		cmd3 = "Logout"; 
-		cmd4 = "unknown";
-		Scanner scanner = new Scanner(System.in); // scanner object to read in
-		System.out.println("what is thy name? ");
-		clientName = scanner.nextLine();
-		listener = start(scanner); // start the client and load in other clients into this clients gui.
-		scanner.close();
-		
+		cmd2 = "Logout";
 	}
 	
 	public String getSelectedClient(int i){
 		return otherClients.get(i);
 	}
-	
-	public Thread start(Scanner scanner) throws IOException{ 
-		Thread t = null;
 
-		t = new Thread( new Runnable(){
-            public void run(){
-            	try {
-            		while(true){
-            			System.out.println("client is listening on seperate thread for updates"); 
-            			
-	            		MulticastSocket sock = new MulticastSocket(444);
-	            		InetAddress IP_ADDRESS = InetAddress.getByName("224.0.0.1");
-						sock.joinGroup(IP_ADDRESS);
-						
-						byte[] buf = new byte[256]; 
-						DatagramPacket packet = new DatagramPacket(buf, buf.length);
-						sock.receive(packet);
-						
-						String newClient = packet.getData().toString();
-						otherClients.add(newClient);
-						sock.close();
-            		}								
-					
-				} catch (IOException e) {
-					System.out.println("multicast not working");
+	public void run() {
+		connector.init(host, port);
+		try {
+			connector.connect();
+			message = new JSONMessage(cmd1, userName);  // cmd1 is for logging in
+			connector.send(message);
+			while(true){
+				JSONMessage reply = connector.receive();
+				System.out.println(reply.getCmd());
+				if(reply.getCmd().equals("Broadcast")){
+					System.out.println("received BroadCast");
+					@SuppressWarnings("unchecked")
+					Set<String> set = (Set<String>) reply.getObject();
+					otherClients.removeAll(otherClients);
+					otherClients.addAll(set); // add other clients in the list
+					gui.update();
+				}else if(reply.getCmd().equals("Conversation")){
+					System.out.println("received Conversation");
+					String message = (String)reply.getMessage();
+					String otherName = (String)reply.getOtherName();
+					conversation.add(otherName + " : " + message); // add other clients in the list
+					gui.update();
+				}else if(reply.getCmd().equals("OK")){
+					System.out.println("received confirmation");
 				}
-            	      
-            }
-        });
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 
-		t.start();
-		
-		
-		//connector.connect(host, port); // connect to server at given host and port number
-		
-		//connector.sendMessage(cmd1); // Login event/request has been passed.
-		
-		// probably need to receive confirmation of connection.
-		
-		return t;
-			
-		//otherClients = (ArrayList<String>) Marshaller.deserializeObject(scanner.nextLine().getBytes());  // need thorough testing first
+	public void setGuiForUpdate(ClientGui clientGui) {
+		gui = clientGui;	// i dont know if having each class compose each other is such a good idea
 	}
 	
 }

@@ -1,0 +1,4 @@
+Login=edu.carleton.comp4104.assignment2.common.Login
+Logout=edu.carleton.comp4104.assignment2.common.Logout
+Conversation=edu.carleton.comp4104.assignment2.common.Conversation
+ReceiveBroadcast=edu.carleton.comp4104.assignment2.common.Broadcast
