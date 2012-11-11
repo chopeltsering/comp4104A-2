@@ -26,9 +26,9 @@ public class ClientGui extends JPanel{
 		this.model = model;
 		this.model.setGuiForUpdate(this);
 		
-		userName = new JLabel(model.userName); 
+		userName = new JLabel("User: "+model.userName); 
 		userName.setLocation(10, 10);
-		userName.setSize(100, 10);
+		userName.setSize(100, 50);
 		add(userName);
 		
 		aListOfClients = new JList<String>();
@@ -48,14 +48,13 @@ public class ClientGui extends JPanel{
 		add(scrollPaneForConversation);
 		
 		whereUserTypes = new JTextField();
-		//whereUserTypes.setEnabled(false);
+		whereUserTypes.setEnabled(false);
 		whereUserTypes.setLocation(10,300);
 		whereUserTypes.setSize(300,25);
 		add(whereUserTypes);
 		
 		SendButton = new JButton("Send");
-		//SendButton.setEnabled(false); 			//sendbutton is disable at the beginning
-		SendButton.setEnabled(true);
+		SendButton.setEnabled(false); 			//sendbutton is disable at the beginning
 		SendButton.setLocation(350, 300);
 		SendButton.setSize(100,25);
 		add(SendButton);
@@ -63,17 +62,31 @@ public class ClientGui extends JPanel{
 		setSize(1000, 1000);
 	}
 	
-	public void update(){
-		System.out.println("update has been called");
-		String[] exactList = new String[model.otherClients.size()];
-		for(int i = 0; i< model.otherClients.size(); i++){
-			if(!model.otherClients.get(i).equals(model.userName)){
-				exactList[i] = model.otherClients.get(i);
+	public void update(String cmd){
+		System.out.println("update has been called with cmd : "+cmd);
+		
+		if(cmd.equals("Broadcast")){
+			String[] exactList = new String[model.otherClients.size()];
+			for(int i = 0; i< model.otherClients.size(); i++){
+				if(!model.otherClients.get(i).equals(model.userName)){
+					exactList[i] = model.otherClients.get(i);
+				}
 			}
-			System.out.println(exactList[i]);
+			aListOfClients.setListData(exactList); // updates the list in Jlist
+			
+		}else if(cmd.equals("send")){
+			whereUserTypes.setText(null);          //means a message has been typed and send, so need to make text area empty.
+			
+		}else if(cmd.equals("Conversation")){
+			String temp = "";
+			for(String s: model.conversation){
+				temp += s + "\n";
+			}
+			System.out.println(temp);
+			conversationFromOtherclients.setText(temp);
+			
 		}
 		
-		aListOfClients.setListData(exactList); // updates the list in Jlist
 	}
 	
 	public JList<String> getList(){

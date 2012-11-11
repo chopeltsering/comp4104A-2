@@ -14,7 +14,7 @@ public class Login implements EventHandler{
 		System.out.println("this is login"); 
 		
 		vault = userVault.getInstance();     						// init() has already been called from server
-		vault.put(message.getYourName(), oos); 					// save the new user in the vault
+		vault.put(message.getsender(), oos); 					// save the new user in the vault
 	
 		//send the updated vault to every user
 		for (Map.Entry<String, ObjectOutputStream> pair : vault.getUsers().entrySet()){

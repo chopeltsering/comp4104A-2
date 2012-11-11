@@ -25,6 +25,7 @@ public class Client implements Runnable{
 		host = localHost;
 		this.port = port;
 		otherClients = new ArrayList<String>();
+		conversation = new ArrayList<String>();
 		cmd1 = "Login";
 		cmd2 = "Logout";
 	}
@@ -41,22 +42,21 @@ public class Client implements Runnable{
 			connector.send(message);
 			while(true){
 				JSONMessage reply = connector.receive();
-				System.out.println(reply.getCmd());
+				System.out.println("cmd received in client "+ userName+" is :"+reply.getCmd());
 				if(reply.getCmd().equals("Broadcast")){
-					System.out.println("received BroadCast");
 					@SuppressWarnings("unchecked")
 					Set<String> set = (Set<String>) reply.getObject();
 					otherClients.removeAll(otherClients);
+					boolean bool = set.remove(userName);
+					System.out.println("removed yourself from the other client list:"+ bool);
 					otherClients.addAll(set); // add other clients in the list
-					gui.update();
+					gui.update("Broadcast");
 				}else if(reply.getCmd().equals("Conversation")){
-					System.out.println("received Conversation");
 					String message = (String)reply.getMessage();
-					String otherName = (String)reply.getOtherName();
-					conversation.add(otherName + " : " + message); // add other clients in the list
-					gui.update();
+					String sender = (String)reply.getsender();
+					conversation.add(sender + " : " + message); 
+					gui.update("Conversation");
 				}else if(reply.getCmd().equals("OK")){
-					System.out.println("received confirmation");
 				}
 			}
 		} catch (IOException e) {

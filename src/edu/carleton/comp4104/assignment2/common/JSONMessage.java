@@ -14,28 +14,28 @@ public class JSONMessage implements Serializable{
 	private final String cmd;
 	private final String object;
 	private  String type;
-	private final String yourName;
-	private final String otherName;
+	private final String sender;
+	private final String receiver;
 	private final String message;
 
 	
 	// Use this for a Login and Logout
-	public JSONMessage(String cmd, String yourName) {
+	public JSONMessage(String cmd, String sender) {
 		this.cmd = cmd;
 		this.object = null;
 		this.type = null;
-		this.yourName = yourName;
-		this.otherName = null;
+		this.sender = sender;
+		this.receiver = null;
 		this.message = null;
 	}
 	
 	// for conversation request
-	public JSONMessage(String yourName, String otherName, String message) {
+	public JSONMessage(String sender, String receiver, String message) {
 		this.cmd = "Conversation";
 		this.type = null;
 		this.object = null;
-		this.yourName = yourName;
-		this.otherName = otherName;
+		this.sender = sender;
+		this.receiver = receiver;
 		this.message = message;
 	}
 	
@@ -48,8 +48,8 @@ public class JSONMessage implements Serializable{
 		}
 		Gson gson = new Gson();
 		this.object = gson.toJson(obj);
-		this.yourName = null;
-		this.otherName = null;
+		this.sender = null;
+		this.receiver = null;
 		this.message = null;
 	}
 	
@@ -57,8 +57,8 @@ public class JSONMessage implements Serializable{
 		this.cmd = "OK";
 		this.object = null;
 		this.type = null;
-		this.yourName = null;
-		this.otherName = null;
+		this.sender = null;
+		this.receiver = null;
 		this.message = null;
 	}
 	
@@ -66,12 +66,12 @@ public class JSONMessage implements Serializable{
 		return cmd;
 	}
 	
-	public String getYourName(){
-		return yourName;
+	public String getsender(){
+		return sender;
 	}
 	
-	public String getOtherName(){
-		return otherName;
+	public String getreceiver(){
+		return receiver;
 	}
 	public String getMessage() {
 		return message;

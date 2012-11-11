@@ -30,7 +30,7 @@ public class ClientController extends JFrame{
 		//add the view
 		getContentPane().add(clientView);
 		
-		//add the event handler for jlist 
+		//add the event handler for send button 
 		clientView.SendButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -41,18 +41,27 @@ public class ClientController extends JFrame{
 			}
 		});
 		
-		//add the event handler for send button
-			clientView.aListOfClients.addMouseListener(new MouseAdapter(){
-				public void mousePressed(MouseEvent e) {
-					try {
-						handleJlist();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+		//add the event handler for jlist
+		clientView.aListOfClients.addMouseListener(new MouseAdapter(){
+			public void mousePressed(MouseEvent e) {
+				try {
+					handleJlist();
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
-			});
+			}
+		});
 			
-		
+		//add the event handler for where user types
+		clientView.whereUserTypes.addMouseListener(new MouseAdapter(){
+			public void mousePressed(MouseEvent e) {
+				try {
+					handleWhereUserTypes();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});	
 		
 		//compute size of the frame
 		setSize(500,500);
@@ -61,13 +70,15 @@ public class ClientController extends JFrame{
 	}
 	
 	private void handleSendButtonPress() throws IOException{ //when send button is pressed
-		System.out.println(clientModel.userName);
+		System.out.println(clientModel.userName+"'s sendButton has been pressed");
 		int index = clientView.getList().getSelectedIndex();
-		
-		if(index >=0){ // if one of the client is selected
+		System.out.println("from list, index number "+index+" has been pressed");
+		if(index >=0){ 																// if one of the client is selected
+			System.out.println("about to send to: "+ clientModel.getSelectedClient(index)+ " text message: "+ clientView.whereUserTypes.getText());
 			JSONMessage message = new JSONMessage(clientModel.userName, clientModel.getSelectedClient(index), clientView.whereUserTypes.getText());
 			try {
 				clientModel.connector.send(message);
+				clientView.update("send");                  
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} 
@@ -78,9 +89,13 @@ public class ClientController extends JFrame{
 	}
 	
 	private void handleJlist() throws IOException{
-		/*clientView.whereUserTypes.setEnabled(false);
 		clientView.whereUserTypes.setEnabled(true);
-		clientView.update(); // update has sendbutton enabling condition
-*/	}
+		//clientView.update(); // update has sendbutton enabling condition
+	}
+	
+	private void handleWhereUserTypes() throws IOException{
+		if(clientView.whereUserTypes.isEnabled())
+			clientView.SendButton.setEnabled(true);
+	}
 
 }

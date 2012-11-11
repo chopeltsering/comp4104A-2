@@ -14,14 +14,14 @@ public class Logout implements EventHandler {
 		System.out.println("this is logout");
 		
 		vault = userVault.getInstance();     						// init() has already been called from server
-		if(message.getYourName().equals("")){
+		if(message.getsender().equals("")){
 			System.out.println("exception logout");
 			System.out.println("before removing :"+vault.getUsers().keySet());
 			vault.removeUsers(oos);
 			System.out.println("after removing :"+vault.getUsers().keySet());
 		}else{
 			System.out.println("logout command remove");
-			vault.removeUsers(message.getYourName());
+			vault.removeUsers(message.getsender());
 		}
 		
 		//send the updated vault to every user
